@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "e6d5d517-f5b0-4a5f-8cab-b3b9e39bc4fd",
+		"_postman_id": "4712357f-0e52-46dd-9bce-132e01dc8809",
 		"name": "cdc-cqrs-pipeline",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "2696806"
@@ -149,6 +149,35 @@
 						"connectors",
 						"mongo-tutorial-sink",
 						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post-Shipping-Details",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"orderId\": \"001\",\r\n    \"customerName\": \"Aaaaa\",\r\n    \"customerAddress\": \"Bbbb\",\r\n    \"zipCode\": \"1111\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8070/api/shipping-details",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8070",
+					"path": [
+						"api",
+						"shipping-details"
 					]
 				}
 			},

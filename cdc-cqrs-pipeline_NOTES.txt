@@ -357,8 +357,31 @@ curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json"
 
 
 
+order-read-service
+	- Exposes a REST endpoint to provide order-details
+	- Reads the data from MongoDB
+order-write-service
+	- Exposes a REST endpoint to ingest order_id & shipping_details
+	- Exposes a REST endpoint to ingest order_id & item_details
+	- If the user provides an order_id, that will be used, otherwise something will be created
+	- Persists to MySQL DB
+	- CDC from MySQL DB to Kafka Topics
+order-process-service
+	- Read from both the topics
+	- Store them in state-store
+	- combine them into one Aggregate
+	- push it to aggregate topic
+	- data is persisted from this Aggregate topic to MongoDB via Connector
+	
+	
+Order_Id  | Shipping_Details
+Order_Id   | Item_Details	
 
-
+OrderAggregate {
+	Order_id
+	Shipping_Details
+	Item_Details	
+}	
 
 
 
