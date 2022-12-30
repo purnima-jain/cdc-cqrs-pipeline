@@ -1,0 +1,181 @@
+version: '3.8'
+
+networks:
+  app_network:
+    name: app_network
+
+services:
+  mysql_db_server:
+    image: mysql:8.0.31
+    container_name: mysql_db_server
+    hostname: mysql_db_server
+    networks:
+      - app_network
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: app-mysql-db
+      MYSQL_USER: custom_mysql_user
+      MYSQL_PASSWORD: custom_mysql_user_password
+    ports:
+      - 3306:3306
+      - 33060:33060
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+      - mysql_db_data_container:/var/lib/mysql
+    healthcheck:
+      test: "mysqladmin ping -u root -p$${MYSQL_ROOT_PASSWORD}"
+
+  adminer_client:
+    image: adminer:4.8.1-standalone
+    container_name: adminer_client
+    hostname: adminer_client
+    networks:
+      - app_network
+    restart: always
+    depends_on:
+      - mysql_db_server
+    environment:
+      ADMINER_DEFAULT_SERVER: mysql_db_server
+    ports:
+      - 8082:8080
+
+  mongodb_server:
+    image: mongo:5.0.13
+    container_name: mongodb_server
+    hostname: mongodb_server
+    networks:
+      - app_network
+    restart: always
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root_mongo_user
+      - MONGO_INITDB_ROOT_PASSWORD=root_mongo_user_password      
+    volumes:
+      - mongodb_data_container:/data/mongodb
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongo mongodb_server:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+  
+  mongo-express:
+    image: mongo-express:0.54.0
+    container_name: mongodb_express
+    hostname: mongodb_express
+    networks:
+      - app_network
+    restart: always
+    depends_on:
+      - mongodb_server
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_ADMINUSERNAME=root_mongo_user
+      - ME_CONFIG_MONGODB_ADMINPASSWORD=root_mongo_user_password
+      - ME_CONFIG_MONGODB_SERVER=mongodb_server
+
+  zookeeper_server:
+    image: confluentinc/cp-zookeeper:7.0.1
+    container_name: zookeeper_server
+    hostname: zookeeper_server
+    networks:
+      - app_network
+    restart: always
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    ports:
+      - "2181:2181"
+    healthcheck:
+      test: "echo stat | nc localhost $$ZOOKEEPER_CLIENT_PORT"
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  kafka_server:
+    image: confluentinc/cp-kafka:7.0.1
+    container_name: kafka_server
+    hostname: kafka_server
+    networks:
+      - app_network
+    restart: always
+    depends_on:
+      - zookeeper_server
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper_server:2181
+      # Ref: https://www.youtube.com/watch?v=L--VuzFiYrM
+      # INTERNAL -- Kafka-Broker & Kafka-Client both running in Docker within the same Docker network, in just different containers
+      #          > docker run -it --rm --name kafka_client_producer --network kafka_network confluentinc/cp-kafka:7.0.1 /bin/kafka-console-producer --bootstrap-server kafka_server:29092 --topic test_topic
+      #          > docker run -it --rm --name kafka_client_consumer --network kafka_network confluentinc/cp-kafka:7.0.1 /bin/kafka-console-consumer --bootstrap-server kafka_server:29092 --topic test_topic
+      # EXTERNAL_SAME_HOST -- Kafka-Broker running in Docker and Kafka-Client on local machine
+      #          > kafka-console-producer --bootstrap-server localhost:9092 --topic test_topic_2
+      #          > kafka-console-consumer --bootstrap-server localhost:9092 --topic test_topic_2
+      # EXTERNAL_DIFFERENT_HOST -- Kafka-Broker running on external server ex. cloud and 157.245.80.232 is it's IP Address (better use DNS Names instead of IP)
+      #          > kafka-console-producer --bootstrap-server 157.245.80.232:29093 --topic test_topic_3
+      #          > kafka-console-consumer --bootstrap-server 157.245.80.232:29093 --topic test_topic_3
+      KAFKA_LISTENERS: EXTERNAL_SAME_HOST://:9092,EXTERNAL_DIFFERENT_HOST://:29093,INTERNAL://:29092
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka_server:29092,EXTERNAL_SAME_HOST://localhost:9092,EXTERNAL_DIFFERENT_HOST://157.245.80.232:29093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL_SAME_HOST:PLAINTEXT,EXTERNAL_DIFFERENT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    ports:
+      - "9092:9092"
+      - "29093:29093"
+    healthcheck:
+      # test: [ "CMD", "nc", "-z", "localhost", "9092" ]
+      test: ["CMD", "kafka-topics", "--bootstrap-server", "kafka_server:9092", "--list"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+
+  kafka_connect:
+    #image: debezium/connect:1.6
+    build: docker/kafka-connect
+    hostname: kafka_connect
+    container_name: kafka_connect
+    networks:
+      - app_network
+    restart: always
+    depends_on:
+      - kafka_server
+      - mysql_db_server
+      - mongodb_server
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka_server:29092
+      CONNECT_REST_PORT: 8083
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_PARTITIONS: 3
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_PARTITIONS: 3
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka_connect
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
+      CONNECT_PLUGIN_PATH: "/usr/share/java"
+      CONNECT_AUTO_CREATE_TOPICS_ENABLE: "true"
+    healthcheck:
+      test: "curl -f http://localhost:$$CONNECT_REST_PORT || exit 1"      
+    ports:
+      - '8083:8083'
+    links:
+      - zookeeper_server
+      - kafka_server
+      - mysql_db_server
+
+
+volumes:
+  mongodb_data_container:
+  mysql_db_data_container:
+

@@ -1,0 +1,365 @@
+Debezium & Kafka Change Data Capture
+https://www.youtube.com/watch?v=WPN68WrpVJs
+
+Note: Debezium is a Source Connector and NOT a Sink Connector
+
+ How to do CDC using debezium, kafka and postgres
+https://www.youtube.com/watch?v=qXIAsgldOB8
+https://www.startdataengineering.com/post/change-data-capture-using-debezium-kafka-and-pg/
+
+ 
+
+ MongoDB Connector
+Run Confluent / Confluent Kafka using docker and install connector
+https://www.youtube.com/watch?v=qHxm7Eu3C5Y
+
+ 
+ 
+ Step 1. Run MySQL via docker-compose.yml
+ Step 2: Run SQL on it
+ 
+ Docker-Compose & Mysql Links
+https://dev.to/sonyarianto/how-to-spin-mysql-server-with-docker-and-docker-compose-33b2
+https://medium.com/@chrischuck35/how-to-create-a-mysql-instance-with-docker-compose-1598f3cc1bee
+https://geshan.com.np/blog/2022/02/mysql-docker-compose/
+https://learn.microsoft.com/en-us/visualstudio/docker/tutorials/tutorial-multi-container-app-mysql
+https://blog.devgenius.io/how-i-setup-mysql-in-docker-compose-e05ba7bcfece
+https://www.youtube.com/watch?v=krDi5y3iHmY
+https://citizix.com/how-to-run-mysql-8-with-docker-and-docker-compose/
+
+
+Notes
+=========================================================================================
+Docker
+================================
+*) To start mongoDB Server, open a VS Code Terminal and go to the folder location where your docker-compose.yml exists:
+	> cd D:\Work\EclipseWorkspace\Github\spring-boot-mongodb
+	> docker-compose up
+	This should start MongoDB Server.	
+*) To remove all volumes (data will be erased) created with docker-compose up use: 
+	> docker-compose down -v	
+
+
+MySQL
+================================
+*) To access Adminer (MySQL Client) use: http://localhost:8082/
+*) To access MySQL by logging into the container:
+	- > docker exec -it mysql_db_server /bin/bash
+	- > mysql -uuser -p
+	- Enter Password: 
+	- > show databases;
+	- To log out type "exit;" twice
+	
+	
+MongoDB
+=================================
+To start MongoDB Client run:
+	> docker exec -it <container_id> mongo admin -u rootusername -p 'rootpassword'
+	OR
+	> docker exec -it mongodb_server mongo admin -u rootusername -p 'rootpassword'
+Now you should be connected to MongoDB Client.
+*) Test to check if the Mongo Client can talk to Mongo Server:
+	> db.version()
+*) To exit from mongo shell use:
+	> exit	
+*) To access Mongo-Express (UI Client for MongoDB): http://localhost:8081
+
+
+Kafka
+====================================
+*) To access Kafka from the shell:
+	> docker exec -it kafka_server bash
+*) To create a topic
+	> kafka-topics --bootstrap-server=localhost:9092 --topic first_topic --create
+*) To list topics:	
+	> kafka-topics --bootstrap-server=localhost:9092 --list
+*) To exit type "exit"
+*) To produce & consumer on Kafka:
+	> docker run -it --rm --name kafka_client_producer --network app_network confluentinc/cp-kafka:7.0.1 /bin/kafka-console-producer --bootstrap-server kafka_server:29092 --topic test_topic
+	> docker run -it --rm --name kafka_client_consumer --network app_network confluentinc/cp-kafka:7.0.1 /bin/kafka-console-consumer --bootstrap-server kafka_server:29092 --topic test_topic
+
+
+
+
+
+
+
+
+
+
+Debezium is a CDC (Change Data Capture) tool built on top of Kafka Connect that can stream changes in real-time from MySQL, PostgreSQL, MongoDB, Oracle, and Microsoft SQL Server into Kafka, using Kafka Connect.
+Debezium CDC Kafka records historical data changes made in the source database to Kafka logs, which can be further used in a Kafka Consumer. We can then easily capture the changes via the Kafka Consumer. In case of abrupt stopping or crashing of application or Debezium CDC Kafka, when restarted the data gets consumed to form the last recorded offset, resulting in zero data loss.
+Debezium’s MySQL connector reads MySQL’s binary log to understand the changes in data sequentially. A change event for every row-level operation like insert, update and delete is produced and recorded to a separate Kafka topic.
+
+Kafka Connect is used for streaming data between Apache Kafka and other external systems. It is used to define connectors that move large collections of data in and out of Kafka.
+
+The Naming Convention For Kafka Topics
+All the change events are stored in a separate topic per table by Debezium. If the connector was configured using the following parameters:
+“database.dbname”: “database_name”,
+“database.server.name”: “database_server_name”,
+The change events for the cdc_test table will be stored in a Kafka topic which is of the format `<hostname>.<databasename>.<tablename>`. i,e in this case database_server_name.database_name.cdc_test.
+Each table in the database becomes a separate topic in Kafka containing one partition by default:
+MySQL-Database-Docker.database_name.user
+MySQL-Database-Docker.database_name.address
+MySQL-Database-Docker.database_name.category
+We can listen to these messages using the kafka-console-consumer.sh:
+$KAFKA_HOME/bin/kafka-console-consumer.sh -bootstrap-server "loclahost:9092" -topic "MySQL-Database-Docker.database_name.user" -from-beginning
+After running the console consumer, insert a record in the MySQL table to see the messages in the console consumer :
+mysql> INSERT INTO `users` VALUES (2, ‘John Doe’);
+Note the structure of the message — we have a before and after field of the record, plus a bunch of metadata (source, op, ts_ms). Depending on what you’re using the CDC events for, you’ll want to retain some or all of this metadata.
+A message is a combination of two metadata: Schema and Payload. The payload consists of 2 parts: before and after, which contains the previous and current record in case of an update operation in Kafka MySQL.
+
+Debezium’s functionality is determined by the database it employs. For example, it reads the commit log in MySQL to figure out the nature of the transactions. However, it uses MongoDB’s native replication method in MongoDB. 
+
+Built on top of Apache Kafka (Kafka Connect REST API), Debezium has a connector library that captures changes from a number of databases and produces events with fairly similar patterns, making it easy for applications to consume and respond to the events regardless of where the changes came from. Debezium enables detecting changes and translating them to events in a single connection. Regardless of the fact that multiple connections exist, they all create events with fairly similar formats, making it much easier for your applications to receive and respond to the events irrespective of where the changes came from.
+
+Key Features of Debezium
+Database Consistency: Debezium ensures eventual consistency by relying on the database’s transaction log to catch changes. Debezium replays the WAL (Write-Ahead Log, a transactional file) in the same way as a read replica or a database backup does. In fact, one can consider the resultant topic as a read replica of the database table.
+Failure Handling: Debezium keeps track of which transaction file items it had processed earlier and stores the read offset in Kafka. Debezium will continue from where it left off in case of an event failure like poor network connectivity. As a result, you can be confident that no modifications will be missed during downtime
+
+Debezium MySQL Connector is a Source connector that can take a snapshot of existing data and track all row-level changes in databases on a MySQL server/cluster. It reads a consistent snapshot of all databases the first time it connects to a MySQL server. In other words, the MySQL connection takes an initial consistent snapshot of each of your databases because MySQL is often set up to remove binlogs after a defined length of time. The MySQL connection reads the binlog from the snapshot’s starting point.
+When the snapshot is complete, the connector reads the changes that were committed to MySQL and creates INSERT, UPDATE, and DELETE events as needed. Each table’s events are stored in their own Kafka topic, where they may be readily accessed by applications and services.
+The binary log (binlog) in MySQL records all database actions in the order in which they are committed. This includes both modifications to table schemas and changes to table data. The binlog is used by MySQL for replication and recovery. 
+The MySQL connector also ensures against event failure. The connector records the binlog position with each event as it reads the binlog and creates events. When a connector shuts down (for example, due to communication problems, network difficulties, or crashes), it begins reading the binlog from where it left off after being resumed. This implies if a snapshotting is not finished when the connector is stopped, a new snapshot will be started when the connector is restarted
+
+All INSERT, UPDATE, and DELETE operations from a single table are written to a single Kafka topic using the Debezium MySQL connection. The following is the Kafka topic naming convention: serverName.databaseName.tableName
+
+
+
+
+
+
+docker exec -it mysql_db_server /bin/bash
+mysql -uroot -p
+desc mysql.db;
+SHOW GRANTS FOR user@'%';
+show databases;
+
+# UPDATE mysql.user SET Super_Priv='Y' WHERE user='user' AND host='%';
+# FLUSH PRIVILEGES;
+GRANT SUPER, RELOAD, PROCESS, REPLICATION SLAVE, REPLICATION CLIENT ON *.* TO user@'%';
+FLUSH PRIVILEGES;
+
+
+# GRANT SELECT, RELOAD, SHOW DATABASES, REPLICATION SLAVE, REPLICATION CLIENT  ON *.* TO 'user' IDENTIFIED BY 'password';
+
+
+docker run -it --rm --name kafka_client_consumer --network app_network confluentinc/cp-kafka:7.0.1 /bin/kafka-console-consumer --bootstrap-server kafka_server:29092 --topic app-mysql-server.app-mysql-db.customer --from-beginning
+
+docker run -it --rm --name kafka_client_consumer --network app_network confluentinc/cp-kafka:7.0.1 /bin/kafka-topics --bootstrap-server kafka_server:29092 --list
+
+TODO: Check if we really need "Links" section in docker-compose.yml
+TODO: Try calling create-connector Postman call via docker-compose.yml
+
+
+
+
+TODO:
+https://www.clairvoyant.ai/blog/mysql-cdc-with-apache-kafka-and-debezium ------- DONE, does not uses docker
+debezium docker compose mysql
+====================================================
+https://morioh.com/p/f19328d78a31  ------ DONE
+https://github.com/debezium/debezium-examples/blob/main/tutorial/docker-compose-mysql.yaml ----- DONE
+https://github.com/nenodias/debezium-mysql/blob/main/docker-compose.yml   ------ DONE
+https://github.com/xmlking/cdc-kafka-hadoop/blob/master/cdc/debezium/register-mysql.json  ------- DONE
+http://www.mastertheboss.com/jboss-frameworks/debezium/how-to-capture-data-changes-with-debezium/
+https://www.conduktor.io/blog/capturing-mysql-database-changes-using-debezium-kafka-and-conduktor    ----------- DONE
+https://blog.devgenius.io/change-data-capture-from-mysql-to-postgresql-using-kafka-connect-and-debezium-ae8740ef3a1d
+https://hevodata.com/learn/debezium-mysql/ ------- DONE, does not uses docker
+https://levelup.gitconnected.com/change-data-capture-with-debezium-kafka-and-mysql-359f7bc6b29a -------- DONE
+https://github.com/mongodb/mongo-kafka/tree/master/docker
+https://github.com/mongodb-university/kafka-edu/tree/main/docs-examples/mongodb-kafka-base
+https://github.com/ivangfr/springboot-kafka-connect-debezium-ksqldb/blob/master/docker-compose.yml
+https://github.com/ivangfr/springboot-kafka-connect-debezium-ksqldb
+https://github.com/debezium/debezium-examples/tree/main/tutorial#using-mongodb
+
+
+*) springboot-kafka-connect-debezium-ksqldb
+https://github.com/ivangfr/springboot-kafka-connect-debezium-ksqldb	
+
+
+
+
+Use Postman to Send Curl Commands: https://www.shipengine.com/docs/curl/
+
+
+*) Sample Configs:
+{
+  "name": "sde-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "start_data_engineer",
+    "database.password": "password",
+    "database.dbname": "start_data_engineer",
+    "database.server.name": "bankserver1",
+    "table.whitelist": "bank.holding"
+  }
+}
+The database.* configs are connection parameters for our postgres database
+database.server.name is a name we assign for our database
+table.whitelist is a field that informs the debezium connector to only read data changes from that table. Similarly you can whitelist or blacklist tables or schemas. By default debezium reads from all tables in a schema.
+connector.class is the connector used to connect to our postgres database
+name name we assign to our connector
+
+
+docker-compose logs -f connect
+
+
+{
+    "name": "mongodb-sink",
+    "config": {
+        "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+        "tasks.max": 1,
+        "topics": "app-mysql-server.app-mysql-db.customer",
+        "mongodb.connection.uri": "mongodb://mongodb_server:27017/test?retryWrites=true",
+        "mongodb.collection": "MyCollection",
+        "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "key.converter.schemas.enable": false,
+        "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+        "value.converter.schemas.enable": false
+    }
+}
+
+  
+  connect:
+    image: confluentinc/cp-kafka-connect-base:7.2.2
+    build:
+      context: .
+      dockerfile: connect.Dockerfile
+    ports:
+      - "35000:35000"
+    hostname: connect
+    container_name: connect
+    depends_on:
+      - zookeeper_server
+      - kafka_server
+      - mongodb_server
+    networks:
+      - app_network
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: "kafka_server:29092"
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_REST_PORT: 8084
+      CONNECT_GROUP_ID: connect-cluster-group      
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-mongodb-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_FLUSH_INTERVAL_MS: 10000
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-mongodb-connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-mongodb-connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_ZOOKEEPER_CONNECT: "zookeeper_server:2181"
+      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components"
+      CONNECT_CONNECTIONS_MAX_IDLE_MS: 180000
+      CONNECT_METADATA_MAX_AGE_MS: 180000
+      CONNECT_AUTO_CREATE_TOPICS_ENABLE: "true"
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"    
+
+
+
+
+  connect:
+    build: docker/kafka-connect
+    container_name: connect
+    restart: unless-stopped
+    depends_on:
+      - zookeeper_server
+      - kafka_server
+      - mongodb_server
+    networks:
+      - app_network
+    ports:
+      - "8084:8083"
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka_server:29092
+      CONNECT_REST_PORT: 8084
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_PARTITIONS: 3
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_PARTITIONS: 3
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter" 
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: connect
+      CONNECT_LOG4J_ROOT_LOGLEVEL: INFO
+      CONNECT_LOG4J_LOGGERS: "org.apache.kafka.connect.runtime.rest=WARN,org.reflections=ERROR"
+      CONNECT_PLUGIN_PATH: "/usr/share/java"
+    healthcheck:
+      test: "curl -f http://localhost:$$CONNECT_REST_PORT || exit 1"   
+
+
+
+https://repo1.maven.org/maven2/io/debezium/debezium-connector-mysql/1.9.5.Final/debezium-connector-mysql-1.9.5.Final-plugin.tar.gz
+
+
+To look at logs for a particular service: docker-compose logs -f <service-name>
+
+docker-compose logs -f kafka_connect
+
+
+kafka_connect:
+    #image: debezium/connect:1.6
+    build: docker/kafka-connect
+    hostname: kafka_connect
+    container_name: kafka_connect
+    networks:
+      - app_network
+    restart: always
+    depends_on:
+      - kafka_server
+      - mysql_db_server
+      - mongodb_server
+    environment:
+      CONNECT_BOOTSTRAP_SERVERS: kafka_server:29092
+      CONNECT_GROUP_ID: compose-connect-group
+      CONNECT_CONFIG_STORAGE_TOPIC: docker-connect-configs
+      CONNECT_CONFIG_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_OFFSET_STORAGE_TOPIC: docker-connect-offsets
+      CONNECT_OFFSET_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_STATUS_STORAGE_TOPIC: docker-connect-status
+      CONNECT_STATUS_STORAGE_REPLICATION_FACTOR: 1
+      CONNECT_KEY_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
+      CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter" 
+      CONNECT_INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      CONNECT_REST_ADVERTISED_HOST_NAME: kafka_connect
+      CONNECT_PLUGIN_PATH: "/usr/share/java"
+      CONNECT_AUTO_CREATE_TOPICS_ENABLE: "true"
+    ports:
+      - '8083:8083'
+    links:
+      - zookeeper_server
+      - kafka_server
+      - mysql_db_server
+	  
+
+
+
+
+mongodb://rootusername:rootpassword@mongodb_server:27017/mydb [right]
+mongodb://mongodb_server:27017	  
+
+
+
+# Start MySQL connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mysql.json
+# Start MongoDB connector
+curl -i -X POST -H "Accept:application/json" -H  "Content-Type:application/json" http://localhost:8083/connectors/ -d @register-mongodb.json
+
+
+
+
+
+
+
+
+
