@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "4712357f-0e52-46dd-9bce-132e01dc8809",
+		"_postman_id": "523060a6-b9a1-4082-ae27-cca26c7dd2ea",
 		"name": "cdc-cqrs-pipeline",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "2696806"
@@ -94,7 +94,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"app-mongo-sink-connector\",\r\n  \"config\": {\r\n    \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\",\r\n    \"topics\": \"app-mysql-server.app-mysql-db.customer\",\r\n    \"connection.uri\": \"mongodb://root_mongo_user:root_mongo_user_password@mongodb_server:27017\",\r\n    \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\r\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\r\n    \"value.converter.schemas.enable\": false,\r\n    \"database\": \"customer_db\",\r\n    \"collection\": \"customer\"\r\n  }\r\n}"
+					"raw": "{\r\n  \"name\": \"app-mongo-sink-connector\",\r\n  \"config\": {\r\n    \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\",\r\n    \"topics\": \"app-mysql-server.app-mysql-db.shipping_details\",\r\n    \"connection.uri\": \"mongodb://root_mongo_user:root_mongo_user_password@mongodb_server:27017\",\r\n    \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\r\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\r\n    \"value.converter.schemas.enable\": false,\r\n    \"database\": \"order_db\",\r\n    \"collection\": \"order\"\r\n  }\r\n}"
 				},
 				"url": {
 					"raw": "localhost:8083/connectors/",
@@ -140,14 +140,14 @@
 				"method": "DELETE",
 				"header": [],
 				"url": {
-					"raw": "localhost:8083/connectors/mongo-tutorial-sink/",
+					"raw": "localhost:8083/connectors/app-mongo-sink-connector/",
 					"host": [
 						"localhost"
 					],
 					"port": "8083",
 					"path": [
 						"connectors",
-						"mongo-tutorial-sink",
+						"app-mongo-sink-connector",
 						""
 					]
 				}
