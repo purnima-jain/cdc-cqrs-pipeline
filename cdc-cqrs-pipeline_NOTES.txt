@@ -386,3 +386,110 @@ OrderAggregate {
 
 
 
+
+16th Jan, 2023
+======================================================================================================
+Steps to execute:
+1. From Docker, execute "docker-compose up"
+
+2. To access Adminer (MySQL Client) use: http://localhost:8082/
+	- username=custom_mysql_user
+	- password=custom_mysql_user_password
+	- db=app-mysql-db
+
+3. To access Mongo-Express (UI Client for MongoDB): http://localhost:8081
+
+4. Execute Postman Request "Create-MySQL-Debezium-Connector"
+
+5. Execute Postman Request "Create-MongoDB-Sink-Connector"
+
+6. Start the Spring Boot App "order-write-service"
+
+7. Execute Postman Request "Post-Shipping-Details"
+
+
+
+From Docker, execute "docker-compose down -v"
+
+docker run -it --rm --name kafka_client_consumer --network app_network confluentinc/cp-kafka:7.0.1 /bin/kafka-topics --bootstrap-server kafka_server:29092 --list
+
+docker run -it --rm --name kafka_client_consumer --network app_network confluentinc/cp-kafka:7.0.1 /bin/kafka-console-consumer --bootstrap-server kafka_server:29092 --topic app-mysql-server.app-mysql-db.shipping_details
+
+
+
+
+*) Udemy - Python
+*) Go thru Shravan's session
+*) CDC-CQRS Pipeline
+*) Migrate kafka-json-registry to Github
+ 
+*) #1. M.Tech. Data Science & Engineering
+https://bits-pilani-wilp.ac.in/m-tech/cluster/data-science-and-engineering.php
+
+*) #2. Master of Science in Data Science
+https://www.upgrad.com/data-science-masters-degree-ljmu/?utm_source=GOOGLE&utm_medium=NBSEARCH&utm_campaign=IND_Acq_Web_Google_NBSearch_DV_IIITBLJMU_MDS_HIT_ROI&utm_content=MS_DS_Broad&utm_term=masters%20in%20data%20science&gclid=CjwKCAiAh9qdBhAOEiwAvxIok5NKl694XKy4OE-1oT-M7aYhO_eIL2fF2oH0_XpmlknEEfp5bTyMnRoClP0QAvD_BwE
+
+
+
+
+ 
+Reference:
+*) Analysing Changes with Debezium and Kafka Streams
+https://www.confluent.io/blog/cdc-and-streaming-analytics-using-debezium-kafka/?utm_medium=sem&utm_source=google&utm_campaign=ch.sem_br.nonbrand_tp.prs_tgt.dsa_mt.dsa_rgn.india_lng.eng_dv.all_con.blog&utm_term=&creative=&device=c&placement=&gclid=CjwKCAiA5Y6eBhAbEiwA_2ZWIcWEc72lZMx8l5N0SvHXeLt98rqyQjOPXkiLa_4k0we2Qh-sSPu2kxoCNMAQAvD_BwE
+*)
+Text to find: Before registering the connector, you should be familiar with its configuration. In the next step, you will register the following connector:
+https://debezium.io/documentation/reference/stable/tutorial.html
+*)
+Text to find: Here are the details of the value of the last event (formatted for readability):
+https://debezium.io/documentation/reference/stable/tutorial.html
+*) Creating DDD aggregates with Debezium and Kafka Streams
+https://debezium.io/blog/2018/03/08/creating-ddd-aggregates-with-debezium-and-kafka-streams/
+Serde: https://github.com/debezium/debezium-examples/blob/main/kstreams/poc-ddd-aggregates/src/main/java/io/debezium/examples/aggregation/serdes/JsonHybridDeserializer.java
+*) Introduction to Debezium
+https://www.baeldung.com/debezium-intro
+*) Find more about SourceRecord of Debezium
+- https://github.com/zzp15222522401/daima/blob/df84b0fa1d0fb3eb5f7e69aa02320494daf90172/flinkgmall1116-parent/flinkgmall1116-realtime/src/main/java/com/atguigu/flinkgmall/funs/MyDebeziumDeserializationSchema.java
+- https://github.com/sunjiale123456/Project/blob/46afcc82aec1dc73c96e34ced02e2ca231be2201/src/main/java/SchemaUDF/MyDeserializationSchema.java
+- https://github.com/apache/hudi/blob/83f8ed2ae3ba7fb20813cbb8768deae6244b020c/hudi-utilities/src/test/java/org/apache/hudi/utilities/sources/debezium/TestPostgresDebeziumSource.java
+ 
+*) Debezium Event Deserialization
+https://debezium.io/documentation/reference/stable/integrations/serdes.html
+*) Debezium connector for MySQL
+ 
+*) Change Data Capture and Kafka to break up your monolith
+https://lenses.io/blog/2021/04/change-data-capture-apache-kafka-break-up-monolith/
+ 
+ 
+ 
+ 
+In this post we are going to talk about a CDC-CQRS data-pipeline between MySQL (a RDBMS database) and MongoDB (a NoSQL database).
+ 
+Here is an architecture-diagram for what we are planning to achieve.
+ 
+<Architecture-Diagram>
+ 
+The major components in this Architecture Diagram are:
+ 
+*) Shipping-Details Microservice
+ 
+ 
+ 
+To execute this application here are the steps that need to be followed:
+*) docker-compose.yml
+*) Verify Kafka, MySQL, MongoDB is running
+*) REST API call for Debezium Connector & MongoDB Sink Connector
+*) Insert ShippingDetails & OrderItems for a particular OrderId using the two write Microservices
+*) Read the OrderAggregate from the ReadMicroservice from MongoDB.
+
+
+
+
+Some more useful URL:
+
+- https://stackoverflow.com/questions/67760094/how-to-combine-different-messages-to-1-output-message-with-kstreams
+- https://stackoverflow.com/questions/54165524/how-to-transform-multiple-messages-into-single-message
+
+
+
+Parsing Json (JsonNode)
+https://jenkov.com/tutorials/java-json/jackson-jsonnode.html#get-jsonnode-field

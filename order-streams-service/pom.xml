@@ -11,14 +11,13 @@
 	</parent>
 	
 	<groupId>com.purnima.jain.order</groupId>
-	<artifactId>order-write-service</artifactId>
+	<artifactId>order-aggregation-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>order-write-service</name>
-	<description>Spring Boot Application for persisting data to MySQL DB and therby initiating CDC via Debezium Source Connector.</description>
+	<name>order-aggregation-service</name>
+	<description>Spring Boot Application for performing Kafka-Stream processing on the CDC data published into a Kafka Topic by Debezium from order-write-service.</description>
 	
 	<properties>
 		<java.version>17</java.version>
-		<mysql.version>8.0.20</mysql.version>
 	</properties>
 	
 	<dependencies>
@@ -34,21 +33,31 @@
 		</dependency>
 		<!-- Lombok - END -->
 		
-		<!-- Spring-JPA - START -->
+	
+		<!-- Apache Kafka - START -->
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-jpa</artifactId>
+			<groupId>org.springframework.kafka</groupId>
+			<artifactId>spring-kafka</artifactId>
 		</dependency>
-		<!-- Spring-JPA - END -->
+		<!-- Apache Kafka - END -->
 		
-		<!-- MySQL - START -->
+		<!-- Kafka Streams - START -->
 		<dependency>
-			<groupId>mysql</groupId>
-			<artifactId>mysql-connector-java</artifactId>
-			<version>${mysql.version}</version>
+			<groupId>org.apache.kafka</groupId>
+			<artifactId>kafka-streams</artifactId>
 		</dependency>
-		<!-- MySQL - END -->
+		<!-- Kafka Streams - END -->
 		
+		<!-- To delete the local kafka-streams directory by using FileUtils - START -->
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.11.0</version>
+		</dependency>	
+		<!-- To delete the local kafka-streams directory by using FileUtils - END -->	
+		
+
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>

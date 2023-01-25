@@ -94,7 +94,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"app-mongo-sink-connector\",\r\n  \"config\": {\r\n    \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\",\r\n    \"topics\": \"app-mysql-server.app-mysql-db.shipping_details\",\r\n    \"connection.uri\": \"mongodb://root_mongo_user:root_mongo_user_password@mongodb_server:27017\",\r\n    \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\r\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\r\n    \"value.converter.schemas.enable\": false,\r\n    \"database\": \"order_db\",\r\n    \"collection\": \"order\"\r\n  }\r\n}"
+					"raw": "{\r\n  \"name\": \"app-mongo-sink-connector\",\r\n  \"config\": {\r\n    \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\",\r\n    \"topics\": \"app-mysql-server.app-mysql-db.shipping_details,app-mysql-server.app-mysql-db.item_details\",\r\n    \"connection.uri\": \"mongodb://root_mongo_user:root_mongo_user_password@mongodb_server:27017\",\r\n    \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\r\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\r\n    \"value.converter.schemas.enable\": false,\r\n    \"database\": \"order_db\",\r\n    \"collection\": \"order\"\r\n  }\r\n}"
 				},
 				"url": {
 					"raw": "localhost:8083/connectors/",
@@ -178,6 +178,35 @@
 					"path": [
 						"api",
 						"shipping-details"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Post-Item-Details",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"orderId\": \"001\",\r\n    \"items\": [\r\n        {\r\n            \"itemId\": \"I001\",\r\n            \"itemName\": \"Item Name 1\",\r\n            \"price\": 11,\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"itemId\": \"I002\",\r\n            \"itemName\": \"Item Name 2\",\r\n            \"price\": 22,\r\n            \"quantity\": 2\r\n        }\r\n    ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8070/api/item-details",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8070",
+					"path": [
+						"api",
+						"item-details"
 					]
 				}
 			},
