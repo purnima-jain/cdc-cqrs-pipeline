@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.purnima.jain.order.exception.OrderAlreadyExistsException;
 import com.purnima.jain.order.jpa.entity.ItemDetailsEntity;
 import com.purnima.jain.order.jpa.repo.ItemDetailsRepository;
 import com.purnima.jain.order.rest.dto.ItemDetailsDto;
@@ -27,6 +28,9 @@ public class ItemDetailsService {
 		
 		if(itemDetailsDto.getOrderId() == null || itemDetailsDto.getOrderId().isBlank()) {
 			itemDetailsDto.setOrderId(UUID.randomUUID().toString());
+		} else if(!itemDetailsRepository.findByOrderId(itemDetailsDto.getOrderId()).isEmpty()) {
+			log.error("Order Id already exists in the database. Order Id: {}", itemDetailsDto.getOrderId());
+			throw new OrderAlreadyExistsException("Order Id already exists in the database. Order Id: " + itemDetailsDto.getOrderId());
 		}
 		List<ItemDetailsEntity> itemDetailsEntityList = convertDtoToEntity(itemDetailsDto);
 

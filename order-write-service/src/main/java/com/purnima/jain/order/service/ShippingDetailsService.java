@@ -5,6 +5,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.purnima.jain.order.exception.OrderAlreadyExistsException;
 import com.purnima.jain.order.jpa.entity.ShippingDetailsEntity;
 import com.purnima.jain.order.jpa.repo.ShippingDetailsRepository;
 import com.purnima.jain.order.rest.dto.ShippingDetailsDto;
@@ -23,7 +24,11 @@ public class ShippingDetailsService {
 		
 		if(shippingDetailsDto.getOrderId() == null || shippingDetailsDto.getOrderId().isBlank()) {
 			shippingDetailsDto.setOrderId(UUID.randomUUID().toString());
+		} else if(shippingDetailsRepository.existsById(shippingDetailsDto.getOrderId())) {
+			log.error("Order Id already exists in the database. Order Id: {}", shippingDetailsDto.getOrderId());
+			throw new OrderAlreadyExistsException("Order Id already exists in the database. Order Id: " + shippingDetailsDto.getOrderId());
 		}
+		
 		ShippingDetailsEntity shippingDetailsEntity = convertDtoToEntity(shippingDetailsDto);
 
 		ShippingDetailsEntity persistedShippingDetailsEntity = shippingDetailsRepository.save(shippingDetailsEntity);
