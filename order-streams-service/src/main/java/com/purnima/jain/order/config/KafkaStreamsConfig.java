@@ -26,10 +26,8 @@ public class KafkaStreamsConfig {
 		Map<String, Object> props = new HashMap<>();
 		props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
 		props.put(StreamsConfig.APPLICATION_ID_CONFIG, applicationId);
-		props.put(StreamsConfig.NUM_STREAM_THREADS_CONFIG, 3);
 
 		return new KafkaStreamsConfiguration(props);
-
 	}
 
 }

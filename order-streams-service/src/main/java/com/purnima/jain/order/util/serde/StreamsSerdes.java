@@ -9,7 +9,6 @@ import org.springframework.kafka.support.serializer.JsonSerializer;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.purnima.jain.order.domain.OrderAggregate;
-import com.purnima.jain.order.dto.ItemDetailsDto;
 import com.purnima.jain.order.dto.ItemDto;
 import com.purnima.jain.order.dto.ShippingDetailsDto;
 
@@ -20,23 +19,9 @@ public class StreamsSerdes extends Serdes {
 	}
 
 	public static final class ItemDtoSerde extends WrapperSerde<ItemDto> {
-
 		public ItemDtoSerde() {
 			super(new JsonSerializer<>(), new JsonDeserializer<>(ItemDto.class, false));
 		}
-
-	}
-
-	public static Serde<ItemDetailsDto> ItemDetailsDtoSerde() {
-		return new ItemDetailsDtoSerde();
-	}
-
-	public static final class ItemDetailsDtoSerde extends WrapperSerde<ItemDetailsDto> {
-
-		public ItemDetailsDtoSerde() {
-			super(new JsonSerializer<>(), new JsonDeserializer<>(ItemDetailsDto.class, false));
-		}
-
 	}
 
 	public static Serde<ArrayList<ItemDto>> ItemDtoArrayListSerde() {
@@ -44,11 +29,9 @@ public class StreamsSerdes extends Serdes {
 	}
 
 	public static final class ItemDtoArrayListSerde extends WrapperSerde<ArrayList<ItemDto>> {
-
 		public ItemDtoArrayListSerde() {
 			super(new JsonSerializer<>(), new JsonDeserializer<>(new TypeReference<ArrayList<ItemDto>>() {}, false));
 		}
-
 	}
 
 	public static Serde<ShippingDetailsDto> ShippingDetailsDtoSerde() {
@@ -56,11 +39,9 @@ public class StreamsSerdes extends Serdes {
 	}
 
 	public static final class ShippingDetailsDtoSerde extends WrapperSerde<ShippingDetailsDto> {
-
 		public ShippingDetailsDtoSerde() {
 			super(new JsonSerializer<>(), new JsonDeserializer<>(ShippingDetailsDto.class, false));
 		}
-
 	}
 
 	public static Serde<OrderAggregate> OrderAggregateSerde() {
@@ -68,11 +49,9 @@ public class StreamsSerdes extends Serdes {
 	}
 
 	public static final class OrderAggregateSerde extends WrapperSerde<OrderAggregate> {
-
 		public OrderAggregateSerde() {
 			super(new JsonSerializer<>(), new JsonDeserializer<>(OrderAggregate.class, false));
 		}
-
 	}
 
 }

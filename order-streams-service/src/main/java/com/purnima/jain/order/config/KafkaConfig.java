@@ -1,8 +1,10 @@
 package com.purnima.jain.order.config;
 
+import org.apache.kafka.clients.admin.NewTopic;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 public class KafkaConfig {
@@ -29,6 +31,21 @@ public class KafkaConfig {
 	@Bean
 	public String orderAggregateTopicName() {
 		return orderAggregateTopicName;
+	}
+	
+	@Bean
+	public NewTopic createShippingDetailsTopicName() {
+		return TopicBuilder.name(shippingDetailsTopicName).build();
+	}
+	
+	@Bean
+	public NewTopic createItemDetailsTopicName() {
+		return TopicBuilder.name(itemDetailsTopicName).build();
+	}
+	
+	@Bean
+	public NewTopic createOrderAggregateTopicName() {
+		return TopicBuilder.name(orderAggregateTopicName).build();
 	}
 
 }

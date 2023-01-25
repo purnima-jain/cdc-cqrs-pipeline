@@ -62,7 +62,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"app-mysql-db-connector\",\r\n    \"config\": {\r\n        \"connector.class\": \"io.debezium.connector.mysql.MySqlConnector\",\r\n        \"tasks.max\": \"1\",\r\n        \"database.hostname\": \"mysql_db_server\",\r\n        \"database.port\": \"3306\",\r\n        \"database.user\": \"custom_mysql_user\",\r\n        \"database.password\": \"custom_mysql_user_password\",\r\n        \"database.server.id\": \"184054\",\r\n        \"database.server.name\": \"app-mysql-server\",\r\n\t\t\"database.whitelist\": \"app-mysql-db\",\r\n        \"database.history.kafka.bootstrap.servers\": \"kafka_server:29092\",\r\n        \"database.history.kafka.topic\": \"dbhistory.app-mysql-db\",\r\n\t\t\"include.schema.changes\": \"true\"\r\n    }\r\n}"
+					"raw": "{\r\n    \"name\": \"app-mysql-db-connector\",\r\n    \"config\": {\r\n        \"connector.class\": \"io.debezium.connector.mysql.MySqlConnector\",\r\n        \"tasks.max\": \"1\",\r\n        \"database.hostname\": \"mysql_db_server\",\r\n        \"database.port\": \"3306\",\r\n        \"database.user\": \"custom_mysql_user\",\r\n        \"database.password\": \"custom_mysql_user_password\",\r\n        \"database.server.id\": \"184054\",\r\n        \"database.server.name\": \"app-mysql-server\",\r\n\t\t\"database.whitelist\": \"app-mysql-db\",\r\n        \"database.history.kafka.bootstrap.servers\": \"kafka_server:29092\",\r\n        \"database.history.kafka.topic\": \"dbhistory.app-mysql-db\",\r\n\t\t\"include.schema.changes\": \"true\",\r\n        \"transforms\": \"unwrap\",\r\n        \"transforms.unwrap.type\": \"io.debezium.transforms.ExtractNewRecordState\"\r\n    }\r\n}"
 				},
 				"url": {
 					"raw": "localhost:8083/connectors/",
@@ -94,7 +94,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n  \"name\": \"app-mongo-sink-connector\",\r\n  \"config\": {\r\n    \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\",\r\n    \"topics\": \"app-mysql-server.app-mysql-db.shipping_details,app-mysql-server.app-mysql-db.item_details\",\r\n    \"connection.uri\": \"mongodb://root_mongo_user:root_mongo_user_password@mongodb_server:27017\",\r\n    \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\r\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\r\n    \"value.converter.schemas.enable\": false,\r\n    \"database\": \"order_db\",\r\n    \"collection\": \"order\"\r\n  }\r\n}"
+					"raw": "{\r\n  \"name\": \"app-mongo-sink-connector\",\r\n  \"config\": {\r\n    \"connector.class\": \"com.mongodb.kafka.connect.MongoSinkConnector\",\r\n    \"topics\": \"order_aggregate\",\r\n    \"connection.uri\": \"mongodb://root_mongo_user:root_mongo_user_password@mongodb_server:27017\",\r\n    \"key.converter\": \"org.apache.kafka.connect.storage.StringConverter\",\r\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\r\n    \"value.converter.schemas.enable\": false,\r\n    \"database\": \"order_db\",\r\n    \"collection\": \"order\",\r\n    \"document.id.strategy.overwrite.existing\": \"true\",\r\n    \"document.id.strategy\": \"com.mongodb.kafka.connect.sink.processor.id.strategy.ProvidedInKeyStrategy\",\r\n    \"transforms\": \"hk,hv\",\r\n    \"transforms.hk.type\": \"org.apache.kafka.connect.transforms.HoistField$Key\",\r\n    \"transforms.hk.field\": \"_id\",\r\n    \"transforms.hv.type\": \"org.apache.kafka.connect.transforms.HoistField$Value\",\r\n    \"transforms.hv.field\": \"order\"\r\n  }\r\n}"
 				},
 				"url": {
 					"raw": "localhost:8083/connectors/",
@@ -190,7 +190,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"orderId\": \"001\",\r\n    \"items\": [\r\n        {\r\n            \"itemId\": \"I001\",\r\n            \"itemName\": \"Item Name 1\",\r\n            \"price\": 11,\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"itemId\": \"I002\",\r\n            \"itemName\": \"Item Name 2\",\r\n            \"price\": 22,\r\n            \"quantity\": 2\r\n        }\r\n    ]\r\n}",
+					"raw": "{\r\n    \"orderId\": \"001\",\r\n    \"items\": [\r\n        {\r\n            \"itemId\": \"I001\",\r\n            \"itemName\": \"Item Name 1\",\r\n            \"price\": 11,\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"itemId\": \"I002\",\r\n            \"itemName\": \"Item Name 2\",\r\n            \"price\": 22,\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"itemId\": \"I003\",\r\n            \"itemName\": \"Item Name 3\",\r\n            \"price\": 33,\r\n            \"quantity\": 3\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
