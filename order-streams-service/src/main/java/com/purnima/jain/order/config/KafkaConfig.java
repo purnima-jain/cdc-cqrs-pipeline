@@ -32,17 +32,17 @@ public class KafkaConfig {
 	public String orderAggregateTopicName() {
 		return orderAggregateTopicName;
 	}
-	
+
 	@Bean
 	public NewTopic createShippingDetailsTopicName() {
 		return TopicBuilder.name(shippingDetailsTopicName).build();
 	}
-	
+
 	@Bean
 	public NewTopic createItemDetailsTopicName() {
 		return TopicBuilder.name(itemDetailsTopicName).build();
 	}
-	
+
 	@Bean
 	public NewTopic createOrderAggregateTopicName() {
 		return TopicBuilder.name(orderAggregateTopicName).build();
