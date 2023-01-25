@@ -25,13 +25,14 @@ public class ItemDetailsService {
 
 	public ItemDetailsDto save(ItemDetailsDto itemDetailsDto) {
 		log.info("Entering ItemDetailsService.save() with itemDetailsDto :: {}", itemDetailsDto);
-		
-		if(itemDetailsDto.getOrderId() == null || itemDetailsDto.getOrderId().isBlank()) {
+
+		if (itemDetailsDto.getOrderId() == null || itemDetailsDto.getOrderId().isBlank()) {
 			itemDetailsDto.setOrderId(UUID.randomUUID().toString());
-		} else if(!itemDetailsRepository.findByOrderId(itemDetailsDto.getOrderId()).isEmpty()) {
+		} else if (!itemDetailsRepository.findByOrderId(itemDetailsDto.getOrderId()).isEmpty()) {
 			log.error("Order Id already exists in the database. Order Id: {}", itemDetailsDto.getOrderId());
 			throw new OrderAlreadyExistsException("Order Id already exists in the database. Order Id: " + itemDetailsDto.getOrderId());
 		}
+
 		List<ItemDetailsEntity> itemDetailsEntityList = convertDtoToEntity(itemDetailsDto);
 
 		List<ItemDetailsEntity> persistedItemDetailsEntityList = (List<ItemDetailsEntity>) itemDetailsRepository.saveAll(itemDetailsEntityList);
@@ -45,8 +46,10 @@ public class ItemDetailsService {
 	private List<ItemDetailsEntity> convertDtoToEntity(ItemDetailsDto itemDetailsDto) {
 		List<ItemDetailsEntity> itemDetailsEntityList = new ArrayList<>();
 
-		if(itemDetailsDto != null) {
-			itemDetailsEntityList = itemDetailsDto.getItems().stream().map(itemDto -> new ItemDetailsEntity(itemDetailsDto.getOrderId(), itemDto.getItemId(), itemDto.getItemName(), itemDto.getPrice(), itemDto.getQuantity())).collect(Collectors.toList());
+		if (itemDetailsDto != null) {
+			itemDetailsEntityList = itemDetailsDto.getItems().stream()
+					.map(itemDto -> new ItemDetailsEntity(itemDetailsDto.getOrderId(), itemDto.getItemId(), itemDto.getItemName(), itemDto.getPrice(), itemDto.getQuantity()))
+					.collect(Collectors.toList());
 		}
 
 		return itemDetailsEntityList;
@@ -54,11 +57,13 @@ public class ItemDetailsService {
 
 	private ItemDetailsDto convertEntityToDto(List<ItemDetailsEntity> itemDetailsEntityList) {
 		ItemDetailsDto itemDetailsDto = null;
-		
-		if(itemDetailsEntityList != null) {
+
+		if (itemDetailsEntityList != null) {
 			itemDetailsDto = new ItemDetailsDto();
 			itemDetailsDto.setOrderId(itemDetailsEntityList.get(0).getOrderId());
-			List<ItemDto> items = itemDetailsEntityList.stream().map(itemDetailsEntity -> new ItemDto(itemDetailsEntity.getItemId(), itemDetailsEntity.getItemName(), itemDetailsEntity.getPrice(), itemDetailsEntity.getQuantity())).collect(Collectors.toList());
+			List<ItemDto> items = itemDetailsEntityList.stream()
+					.map(itemDetailsEntity -> new ItemDto(itemDetailsEntity.getItemId(), itemDetailsEntity.getItemName(), itemDetailsEntity.getPrice(), itemDetailsEntity.getQuantity()))
+					.collect(Collectors.toList());
 			itemDetailsDto.setItems(items);
 		}
 

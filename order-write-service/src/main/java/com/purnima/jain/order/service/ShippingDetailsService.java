@@ -21,14 +21,14 @@ public class ShippingDetailsService {
 
 	public ShippingDetailsDto save(ShippingDetailsDto shippingDetailsDto) {
 		log.info("Entering ShippingDetailsService.save() with shippingDetailsDto :: {}", shippingDetailsDto);
-		
-		if(shippingDetailsDto.getOrderId() == null || shippingDetailsDto.getOrderId().isBlank()) {
+
+		if (shippingDetailsDto.getOrderId() == null || shippingDetailsDto.getOrderId().isBlank()) {
 			shippingDetailsDto.setOrderId(UUID.randomUUID().toString());
-		} else if(shippingDetailsRepository.existsById(shippingDetailsDto.getOrderId())) {
+		} else if (shippingDetailsRepository.existsById(shippingDetailsDto.getOrderId())) {
 			log.error("Order Id already exists in the database. Order Id: {}", shippingDetailsDto.getOrderId());
 			throw new OrderAlreadyExistsException("Order Id already exists in the database. Order Id: " + shippingDetailsDto.getOrderId());
 		}
-		
+
 		ShippingDetailsEntity shippingDetailsEntity = convertDtoToEntity(shippingDetailsDto);
 
 		ShippingDetailsEntity persistedShippingDetailsEntity = shippingDetailsRepository.save(shippingDetailsEntity);

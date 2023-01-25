@@ -14,13 +14,13 @@ public class ShippingDetailsEntity {
 	@Id
 	@Column(name = "ORDER_ID")
 	private String orderId;
-	
+
 	@Column(name = "CUSTOMER_NAME")
 	private String customerName;
-	
+
 	@Column(name = "CUSTOMER_ADDRESS")
 	private String customerAddress;
-	
+
 	@Column(name = "ZIPCODE")
 	private String zipCode;
 

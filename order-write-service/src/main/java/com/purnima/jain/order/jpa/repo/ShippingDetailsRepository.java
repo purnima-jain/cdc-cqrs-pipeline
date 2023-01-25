@@ -7,5 +7,5 @@ import com.purnima.jain.order.jpa.entity.ShippingDetailsEntity;
 
 @Repository
 public interface ShippingDetailsRepository extends JpaRepository<ShippingDetailsEntity, String> {
-	
+
 }
