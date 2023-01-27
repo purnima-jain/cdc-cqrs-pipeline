@@ -62,7 +62,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"name\": \"app-mysql-db-connector\",\r\n    \"config\": {\r\n        \"connector.class\": \"io.debezium.connector.mysql.MySqlConnector\",\r\n        \"tasks.max\": \"1\",\r\n        \"database.hostname\": \"mysql_db_server\",\r\n        \"database.port\": \"3306\",\r\n        \"database.user\": \"custom_mysql_user\",\r\n        \"database.password\": \"custom_mysql_user_password\",\r\n        \"database.server.id\": \"184054\",\r\n        \"database.server.name\": \"app-mysql-server\",\r\n\t\t\"database.whitelist\": \"app-mysql-db\",\r\n        \"database.history.kafka.bootstrap.servers\": \"kafka_server:29092\",\r\n        \"database.history.kafka.topic\": \"dbhistory.app-mysql-db\",\r\n\t\t\"include.schema.changes\": \"true\",\r\n        \"transforms\": \"unwrap\",\r\n        \"transforms.unwrap.type\": \"io.debezium.transforms.ExtractNewRecordState\"\r\n    }\r\n}"
+					"raw": "{\r\n    \"name\": \"app-mysql-db-connector\",\r\n    \"config\": {\r\n        \"connector.class\": \"io.debezium.connector.mysql.MySqlConnector\",\r\n        \"tasks.max\": \"1\",\r\n        \"database.hostname\": \"mysql_db_server\",\r\n        \"database.port\": \"3306\",\r\n        \"database.user\": \"custom_mysql_user\",\r\n        \"database.password\": \"custom_mysql_user_password\",\r\n        \"database.server.id\": \"184054\",\r\n        \"database.server.name\": \"app-mysql-server\",\r\n\t\t\"database.whitelist\": \"app-mysql-db\",\r\n        \"table.whitelist\": \"app-mysql-db.shipping_details,app-mysql-db.item_details\",\r\n        \"database.history.kafka.bootstrap.servers\": \"kafka_server:29092\",\r\n        \"database.history.kafka.topic\": \"dbhistory.app-mysql-db\",\r\n\t\t\"include.schema.changes\": \"true\",\r\n        \"transforms\": \"unwrap\",\r\n        \"transforms.unwrap.type\": \"io.debezium.transforms.ExtractNewRecordState\"\r\n    }\r\n}"
 				},
 				"url": {
 					"raw": "localhost:8083/connectors/",
@@ -161,7 +161,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"orderId\": \"6c6d399a-734e-4404-a14a-fe727b8d77a1\",\r\n    \"customerName\": \"Aaaaa\",\r\n    \"customerAddress\": \"Bbbb\",\r\n    \"zipCode\": \"1111\"\r\n}",
+					"raw": "{\r\n    \"orderId\": \"ed26c8b6-0431-4c95-8555-0af0cd19e2d2\",\r\n    \"customerName\": \"John Doe\",\r\n    \"customerAddress\": \"104 Rising Sun Rd\",\r\n    \"zipCode\": \"08505\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -190,7 +190,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"orderId\": \"6c6d399a-734e-4404-a14a-fe727b8d77a1\",\r\n    \"items\": [\r\n        {\r\n            \"itemId\": \"I001\",\r\n            \"itemName\": \"Item Name 1\",\r\n            \"price\": 11,\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"itemId\": \"I002\",\r\n            \"itemName\": \"Item Name 2\",\r\n            \"price\": 22,\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"itemId\": \"I003\",\r\n            \"itemName\": \"Item Name 3\",\r\n            \"price\": 33,\r\n            \"quantity\": 3\r\n        }\r\n    ]\r\n}",
+					"raw": "{\r\n    \"orderId\": \"ed26c8b6-0431-4c95-8555-0af0cd19e2d2\",\r\n    \"items\": [\r\n        {\r\n            \"itemId\": \"I001\",\r\n            \"itemName\": \"Laptop\",\r\n            \"price\": 500,\r\n            \"quantity\": 1\r\n        },\r\n        {\r\n            \"itemId\": \"I002\",\r\n            \"itemName\": \"Handbag\",\r\n            \"price\": 1000,\r\n            \"quantity\": 2\r\n        },\r\n        {\r\n            \"itemId\": \"I003\",\r\n            \"itemName\": \"Book\",\r\n            \"price\": 300,\r\n            \"quantity\": 3\r\n        }\r\n    ]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -207,6 +207,39 @@
 					"path": [
 						"api",
 						"item-details"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get-Order-By-Order-Id",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8072/api/order/ed26c8b6-0431-4c95-8555-0af0cd19e2d2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8072",
+					"path": [
+						"api",
+						"order",
+						"ed26c8b6-0431-4c95-8555-0af0cd19e2d2"
 					]
 				}
 			},

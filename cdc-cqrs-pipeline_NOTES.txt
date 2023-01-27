@@ -493,3 +493,33 @@ Some more useful URL:
 
 Parsing Json (JsonNode)
 https://jenkov.com/tutorials/java-json/jackson-jsonnode.html#get-jsonnode-field
+
+
+Rounded Corner Table:
+https://codepen.io/mlms13/pen/DWbpwo
+Include Ink Free font: https://www.cdnfonts.com/ink-free.font
+body {
+  margin: 30px;
+  font-family: 'Garamond', sans-serif;
+}
+
+
+
+ORDER_ID	CUSTOMER_NAME	CUSTOMER_ADDRESS	ZIPCODE
+ed26c8b6-0431-4c95-8555-0af0cd19e2d2	John Doe	104 Rising Sun Rd	08505
+4b280363-c00d-4d3d-9a9f-f772168068f4	Jane Doe	1506 Market St	60016
+754c240d-0df4-4f2d-82de-b725a98cdc8f	Jennifer Johnson	3158 Hamner Ave	92860
+
+
+ORDER_ID	ITEM_ID	ITEM_NAME	PRICE	QUANTITY
+ed26c8b6-0431-4c95-8555-0af0cd19e2d2	I001	Laptop	500	1
+ed26c8b6-0431-4c95-8555-0af0cd19e2d2	I002	Handbag	1000	2
+ed26c8b6-0431-4c95-8555-0af0cd19e2d2	I003	Book	300	3
+4b280363-c00d-4d3d-9a9f-f772168068f4	I004	Jacket	250	1
+4b280363-c00d-4d3d-9a9f-f772168068f4	I001	Laptop	500	1
+754c240d-0df4-4f2d-82de-b725a98cdc8f	I002	Handbag	500	1
+
+LucidChart
+Microsoft Visio
+
+
