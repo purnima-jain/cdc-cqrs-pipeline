@@ -20,7 +20,7 @@ This starts the services for the following components:
 
 Once all services have started, register an instance of the Debezium MySQL connector & MongoDB Connector by executing the `Create-MySQL-Debezium-Connector` and `Create-MongoDB-Sink-Connector` request respectively from `cdc-cqrs-pipeline.postman_collection.json`. Execute the request `Get-All-Connectors` to verify that the connectors have been properly created.
 
-Change into the individual directories and execute the three Spring-Boot applications:
+Change into the individual directories and spin-up the three Spring-Boot applications:
 - order-write-service: runs on port no `8070`
 - order-aggregation-service: runs on port no `8071`
 - order-read-service: runs on port no `8072`
