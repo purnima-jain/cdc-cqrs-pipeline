@@ -21,9 +21,9 @@ This starts the services for the following components:
 To access Mongo-Express (UI Client for MongoDB): http://localhost:8081
 
 To access Adminer (MySQL Client): http://localhost:8082/
-	- username=custom_mysql_user
-	- password=custom_mysql_user_password
-	- database=app-mysql-db
+- username=custom_mysql_user
+- password=custom_mysql_user_password
+- database=app-mysql-db
 
 Once all services have started, register an instance of the Debezium MySQL connector & MongoDB Connector by executing the `Create-MySQL-Debezium-Connector` and `Create-MongoDB-Sink-Connector` request respectively from `cdc-cqrs-pipeline.postman_collection.json`. Execute the request `Get-All-Connectors` to verify that the connectors have been properly created.
 
